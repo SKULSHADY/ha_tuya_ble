@@ -552,7 +552,6 @@ class TuyaBLELight(TuyaBLEEntity, LightEntity):
             description.brightness, dptype=DPType.INTEGER, prefer_function=True
         ):
             self._brightness = int_type
-            self._attr_supported_color_modes.add(ColorMode.BRIGHTNESS)
             self._brightness_max = self.find_dpcode(
                 description.brightness_max, dptype=DPType.INTEGER
             )
@@ -820,8 +819,6 @@ class TuyaBLELight(TuyaBLEEntity, LightEntity):
             return ColorMode.HS
         if self._color_temp:
             return ColorMode.COLOR_TEMP
-        if self._brightness:
-            return ColorMode.BRIGHTNESS
         return ColorMode.ONOFF
 
     def _get_color_data(self) -> ColorData | None:
