@@ -12,7 +12,7 @@ from enum import IntEnum, StrEnum, Enum
 
 from homeassistant.components.light import (
     ATTR_BRIGHTNESS,
-    ATTR_COLOR_TEMP,
+    ATTR_COLOR_TEMP_KELVIN,
     ATTR_HS_COLOR,
     ColorMode,
     LightEntity,
@@ -552,7 +552,6 @@ class TuyaBLELight(TuyaBLEEntity, LightEntity):
             description.brightness, dptype=DPType.INTEGER, prefer_function=True
         ):
             self._brightness = int_type
-            self._attr_supported_color_modes.add(ColorMode.BRIGHTNESS)
             self._brightness_max = self.find_dpcode(
                 description.brightness_max, dptype=DPType.INTEGER
             )
@@ -612,7 +611,7 @@ class TuyaBLELight(TuyaBLEEntity, LightEntity):
         """Turn on or control the light."""
         commands = [{"code": self.entity_description.key, "value": True}]
 
-        if self._color_temp and ATTR_COLOR_TEMP in kwargs:
+        if self._color_temp and ATTR_COLOR_TEMP_KELVIN in kwargs:
             if self._color_mode_dpcode:
                 commands += [
                     {
@@ -626,7 +625,7 @@ class TuyaBLELight(TuyaBLEEntity, LightEntity):
                     "code": self._color_temp.dpcode,
                     "value": round(
                         self._color_temp.remap_value_from(
-                            kwargs[ATTR_COLOR_TEMP],
+                            kwargs[ATTR_COLOR_TEMP_KELVIN],
                             self.min_mireds,
                             self.max_mireds,
                             reverse=True,
@@ -640,7 +639,7 @@ class TuyaBLELight(TuyaBLEEntity, LightEntity):
             or (
                 ATTR_BRIGHTNESS in kwargs
                 and self.color_mode == ColorMode.HS
-                and ATTR_COLOR_TEMP not in kwargs
+                and ATTR_COLOR_TEMP_KELVIN not in kwargs
             )
         ):
             if self._color_mode_dpcode:
@@ -820,8 +819,6 @@ class TuyaBLELight(TuyaBLEEntity, LightEntity):
             return ColorMode.HS
         if self._color_temp:
             return ColorMode.COLOR_TEMP
-        if self._brightness:
-            return ColorMode.BRIGHTNESS
         return ColorMode.ONOFF
 
     def _get_color_data(self) -> ColorData | None:
